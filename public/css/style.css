@@ -1,0 +1,30 @@
+.conv{
+    border: solid 4px dodgerblue;
+    max-width: 40vw;
+    height: auto;
+}
+.conversation{
+    border-top: solid 2px red;
+    border-bottom: solid 2px black;
+    width: auto;
+    height: auto;
+    padding: 7px;
+}
+.conversation_username{
+
+}
+.conversation_message{
+
+}
+.room{
+    display: flex;
+    max-width: 40vw;
+}
+.administration{
+    display: flex;
+    max-width: 40vw;
+}
+.section_reply{
+    background-color: orange;
+    max-width: 40vw;
+}

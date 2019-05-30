@@ -1,0 +1,173 @@
+doctype html
+html
+    head
+        meta(charset='UTF-8')
+        title Title
+        //meta(name='description' content='')
+        //meta(name='author' content='')
+        link(rel='stylesheet' type='text/css' href='css/style.css')
+    h1  🇺🇸 Client support administration 🇺🇸
+    div.administration
+        div.room
+            section#conversations.conv
+            // <p>
+
+        div#section_reply.section_reply
+            //div.section_reply_conversation
+            //    section#conv_single_user.conv_single_user
+            //div.reply_message
+            //    section#reply.reply
+            //        input#write_response.write_response
+            //        button#reply_to.reply_to
+
+    script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js")
+    script.
+        // onclick sur un lien de la socket
+        // lors du onclick je fais en sorte que cela m'ouvre une div en js surement un append() ou appear()
+        // il faut que cela ouvre une div qui contiendrais un emplacement pour y répondre
+        // ouvrir une session socket
+        // l'username global de la socket doit etre administrateur
+        // recuperer le message et l'username de la socket (same que client)
+        // envoyé un message private via io.to('') ou encore socket.broadcast.to('ID')
+
+        // faire une vérification avant de push dans le tableau si le nom existe deja alors error.
+        // rectification cela sert a rien puisque c'est la socket que l'on vérifie ainsi
+        // vu qu'il ne peut pas y avoir deux fois le meme socket.id alors c'est bon.
+        //on click de la div pour append une section reply je dois lui passer l'id de
+        // la socket de facon a faire une fonction  onclick de envoyer message a la socket en question
+        // faire un append et afficher a ce moment les div / input / button.
+        // puis faire un if si l'user n'a pas ecrit le bouton est disabled.
+
+
+        /*function getSocketMessage () {
+
+            let conversations = document.getElementById('conversations');
+            let x = !{data}
+
+            let listSocket = function () {
+                for (let i = 0; i < x.length; i++) {
+
+                    let theSocket_MESSAGE = ""
+                    let theSocket_ID = ""
+                    let theSocket_USERNAME = ""
+
+                    theSocket_MESSAGE += x[i].message
+                    theSocket_ID += x[i].theSocket
+                    theSocket_USERNAME += x[i].username
+
+                    let p = document.createElement("<div class= conversation>" + "<p class='conversation_id'> ➡️  "
+                        + 'ID' + ':  ' + theSocket_ID + "</p>" + "<p class='conversation_username'>" + '   ' +
+                        'Username' + ':  ' + theSocket_USERNAME + "</p>" + "<p class='conversation_message' >" + '   ' +
+                        'Message' + ':  ' + theSocket_MESSAGE +
+                        "</p>" + "</div>");
+
+                    document.body.appendChild(p)
+
+                    console.log(x[i].message + ' ' + x[i].theSocket + ' ' + x[i].username);
+                }
+            }
+
+            listSocket();
+
+            console.log(x);
+
+        }
+        getSocketMessage()*/
+
+        // ouvrir une session socket des l'ouverture de la page
+        // passer la socket id et le message avec le user dans la div correspondant (meme steps que pour afficher de base)
+        // les afficher dans un champs correspondant a l'historique de la conv comme pour fb (suivie des message)
+        // recuperer uniquement les message de la socket id qui est passé dans la div de base
+        // quand on click sur la div seul les message de la socket en question doivent d'afficher
+        // structurer le tout en front
+        // lors du click sur le bouton send:
+        // savoir qui est l'emmeteur du message
+
+        $(function c () {
+            // let socket = io.connect('http://localhost:3000/');
+            let conversations = $("#conversations");
+            let x = !{data}
+
+            let listSocket = function () {
+                for (let i = 0; i < x.length; i++) {
+
+                    let theSocket_MESSAGE = ""
+                    let theSocket_ID = ""
+                    let theSocket_USERNAME = ""
+
+                    theSocket_MESSAGE += x[i].message
+                    theSocket_ID += x[i].theSocket
+                    theSocket_USERNAME += x[i].username
+
+                    conversations.append("<div class= conversation>" + "<p class='conversation_id'> ➡️  "
+                        + 'ID' + ':  ' + theSocket_ID + "</p>" + "<p class='conversation_username'>" + '   ' +
+                        'Username' + ':  ' + theSocket_USERNAME + "</p>" + "<p class='conversation_message' >" + '   ' +
+                    'Message' + ':  ' + theSocket_MESSAGE +
+                        "</p>"+ " <button id='open_c'>open</button> " +"</div>")
+
+                    console.log(x[i].message + ' ' + x[i].theSocket + ' ' + x[i].username);
+                }
+            }
+
+            listSocket();
+
+            console.log(x);
+        })
+
+        $(function getMessage() {
+
+            // let open_conversations = $("#open_c");
+            let message = $("#section_reply")
+            let y = !{data}
+
+            $("#open_c").click(function () {
+
+                let listSocket = function () {
+                    for (let i = 0; i < y.length; i++) {
+
+                        let theSocket_MESSAGE = ""
+                        let theSocket_ID = ""
+                        let theSocket_USERNAME = ""
+
+                        theSocket_MESSAGE += y[i].message
+                        theSocket_ID += y[i].theSocket
+                        theSocket_USERNAME += y[i].username
+
+                        function idSocket() {
+                            return y[i].theSocket === theSocket_ID
+                        }
+
+                        function messSocket() {
+                            return y[i].message === theSocket_MESSAGE
+                        }
+
+                        function nameSocket() {
+                            return y[i].username === theSocket_USERNAME
+                        }
+
+                        console.log(y[i].message + ' ' + y[i].theSocket + ' ' + y[i].username);
+
+                    }
+
+
+                    const id = y.find(function (element) {
+                        obj = JSON.parse(!{data})
+                        return console.log(obj)
+                    });
+                    console.log(id)
+                    const mess = y.find(messSocket)
+                    const name = y.find(nameSocket)
+
+                    message.append("<div class='section_reply_conversation'>"
+                        + "<section class='conv_single_user' id='conv_single_user'></section>" +
+                        "</div>" + "<div class='reply_message'>" +
+                        " <section class='reply' id='reply'>"+ id+ mess+ name +
+                        "<input id='write_response' type='text' placeholder='your username' class='write_response'" +
+                        " <input id='reply_to' type='button' placeholder='send' class='reply_to'" +
+                        "</section>" + "</div>")
+                    //
+                }
+                listSocket()
+                // alert( "Handler for .click() called." );
+            })
+        });
