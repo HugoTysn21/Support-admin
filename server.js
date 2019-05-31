@@ -12,7 +12,6 @@ const mysql = require('mysql');
 // MARK: - Fields
 let allSocketsData = [];
 let socketsData = JSON.stringify(allSocketsData);
-
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
@@ -20,9 +19,7 @@ app.use(express.static('public'));
 app.use(express.static('front'));
 
 app.get('/admin', (req, res) => {
-    res.render('admin', {data: JSON.stringify(allSocketsData)});
-    console.log("test for require socket ");
-    let socket = io.connect('http://localhost:3000/admin');
+    res.render('admin', {data: JSON.stringify(allSocketsData)})
 });
 app.use(express.static(__dirname + '/public'));
 
@@ -65,18 +62,17 @@ app.get('/', (req, res) => {
 io.on('connect',(socket) => {
     console.log('new user connected');
 
-    socket.username = 'Anonymous';
-
-    socket.on('change_username',(data) =>{
-        socket.username = data.username;
-        console.log(data.username)
-    });
+    // socket.username = 'Anonymous';
 
     socket.on('new_message',(data) => {
-        io.sockets.emit('new_message',{message: data.message, username: socket.username});
-        let singleDATA =  {theSocket: socket.id, message: data.message, username: socket.username};
+        io.sockets.emit('new_message',{message: data.message, username: data.username, socket: socket.id});
+        let singleDATA =  {theSocket: socket.id, message: data.message, username: data.username};
         allSocketsData.push(singleDATA);
         console.log(allSocketsData)
+    });
+
+    socket.on('new_reply_message',(data) => {
+         io.to("socket.id").emit('private_message',data );
     });
 
     socket.on('disconnect', function() {

@@ -3,24 +3,16 @@ html
     head
         meta(charset='UTF-8')
         title Title
-        //meta(name='description' content='')
-        //meta(name='author' content='')
         link(rel='stylesheet' type='text/css' href='css/style.css')
     h1  🇺🇸 Client support administration 🇺🇸
     div.administration
         div.room
             section#conversations.conv
-            // <p>
 
         div#section_reply.section_reply
-            //div.section_reply_conversation
-            //    section#conv_single_user.conv_single_user
-            //div.reply_message
-            //    section#reply.reply
-            //        input#write_response.write_response
-            //        button#reply_to.reply_to
 
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js")
+    script(src="/socket.io/socket.io.js")
     script.
         // onclick sur un lien de la socket
         // lors du onclick je fais en sorte que cela m'ouvre une div en js surement un append() ou appear()
@@ -73,7 +65,6 @@ html
 
         }
         getSocketMessage()*/
-
         // ouvrir une session socket des l'ouverture de la page
         // passer la socket id et le message avec le user dans la div correspondant (meme steps que pour afficher de base)
         // les afficher dans un champs correspondant a l'historique de la conv comme pour fb (suivie des message)
@@ -83,91 +74,98 @@ html
         // lors du click sur le bouton send:
         // savoir qui est l'emmeteur du message
 
-        $(function c () {
-            // let socket = io.connect('http://localhost:3000/');
-            let conversations = $("#conversations");
-            let x = !{data}
+        let socket = io.connect('http://localhost:3000/');
+        let conversations = $("#conversations");
+        socket.on('new_message', function (data) {
 
-            let listSocket = function () {
-                for (let i = 0; i < x.length; i++) {
+            let username = "Administrator"
 
-                    let theSocket_MESSAGE = ""
-                    let theSocket_ID = ""
-                    let theSocket_USERNAME = ""
-
-                    theSocket_MESSAGE += x[i].message
-                    theSocket_ID += x[i].theSocket
-                    theSocket_USERNAME += x[i].username
-
-                    conversations.append("<div class= conversation>" + "<p class='conversation_id'> ➡️  "
-                        + 'ID' + ':  ' + theSocket_ID + "</p>" + "<p class='conversation_username'>" + '   ' +
-                        'Username' + ':  ' + theSocket_USERNAME + "</p>" + "<p class='conversation_message' >" + '   ' +
-                    'Message' + ':  ' + theSocket_MESSAGE +
-                        "</p>"+ " <button id='open_c'>open</button> " +"</div>")
-
-                    console.log(x[i].message + ' ' + x[i].theSocket + ' ' + x[i].username);
-                }
-            }
-
-            listSocket();
-
-            console.log(x);
-        })
-
-        $(function getMessage() {
-
-            // let open_conversations = $("#open_c");
-            let message = $("#section_reply")
-            let y = !{data}
+            conversations.append("<div class= conversation>" + "<p class='conversation_id'> ➡️  "
+                + 'ID' + ':  ' + data.socket + "</p>" + "<p id='conversation_username' class='conversation_username'>" + '   ' +
+                'Username' + ':  ' + data.username + "</p>" + "<p class='conversation_message' >" + '   ' +
+                'Message' + ':  ' + data.message +
+                "</p>" + " <button id='open_c'>open</button> " + "</div>")
 
             $("#open_c").click(function () {
 
-                let listSocket = function () {
-                    for (let i = 0; i < y.length; i++) {
-
-                        let theSocket_MESSAGE = ""
-                        let theSocket_ID = ""
-                        let theSocket_USERNAME = ""
-
-                        theSocket_MESSAGE += y[i].message
-                        theSocket_ID += y[i].theSocket
-                        theSocket_USERNAME += y[i].username
-
-                        function idSocket() {
-                            return y[i].theSocket === theSocket_ID
-                        }
-
-                        function messSocket() {
-                            return y[i].message === theSocket_MESSAGE
-                        }
-
-                        function nameSocket() {
-                            return y[i].username === theSocket_USERNAME
-                        }
-
-                        console.log(y[i].message + ' ' + y[i].theSocket + ' ' + y[i].username);
-
-                    }
-
-
-                    const id = y.find(function (element) {
-                        obj = JSON.parse(!{data})
-                        return console.log(obj)
-                    });
-                    console.log(id)
-                    const mess = y.find(messSocket)
-                    const name = y.find(nameSocket)
-
-                    message.append("<div class='section_reply_conversation'>"
-                        + "<section class='conv_single_user' id='conv_single_user'></section>" +
-                        "</div>" + "<div class='reply_message'>" +
-                        " <section class='reply' id='reply'>"+ id+ mess+ name +
-                        "<input id='write_response' type='text' placeholder='your username' class='write_response'" +
-                        " <input id='reply_to' type='button' placeholder='send' class='reply_to'" +
-                        "</section>" + "</div>")
-                    //
+                let messagess = $("#section_reply")
+                let conv_user = $("#conversation_username")
+                let c = $("#reply_message")
+                if (data.username === conv_user.val()) {
+                    c.append("<p>" + conv_user.val() + "</p>")
                 }
-                listSocket()
-                // alert( "Handler for .click() called." );
+                messagess.append("<div class='section_reply_conversation'>"
+                    + "<section class='conv_single_user' id='conv_single_user'></section>" +
+                    "</div>" + "<div class='reply_message'>" +
+                    " <section class='reply' id='reply'>" +
+                    "<input id='write_response' type='text' placeholder='your username' class='write_response'>" +
+                    " <input id='reply_to' type='button' placeholder='send' class='reply_to'>" +
+                    "</section>" + "</div>")
             })
-        });
+        })
+
+        // $("#reply_to").click(function () {
+        //         socket.emit('new_reply_message', {message: message.val(), user: username})
+        //     })
+
+            // $(function getMessage() {
+            //
+            //     let message = $("#section_reply")
+            //     let y = !{data}
+        //
+        //     $("#open_c").click(function () {
+        //
+        //         let listSocket = function () {
+        //             let m = function () {
+        //                 for (let i = 0; i < y.length; i++) {
+        //
+        //                     let theSocket_MESSAGE = ""
+        //                     let theSocket_ID = ""
+        //                     let theSocket_USERNAME = ""
+        //
+        //                     theSocket_MESSAGE += y[i].message
+        //                     theSocket_ID += y[i].theSocket
+        //                     theSocket_USERNAME += y[i].username
+        //
+        //                     function idSocket() {
+        //                         return y[i].theSocket === theSocket_ID
+        //                     }
+        //
+        //                     function messSocket() {
+        //                         return y[i].message === theSocket_MESSAGE
+        //                     }
+        //
+        //                     function nameSocket() {
+        //                         return y[i].username === theSocket_USERNAME
+        //                     }
+        //
+        //                     let socketList = []
+        //                     socketList.push(theSocket_USERNAME)
+        //                     socketList.push(theSocket_ID)
+        //                     socketList.push(theSocket_MESSAGE)
+        //
+        //                     console.log(y[i].message + ' ' + y[i].theSocket + ' ' + y[i].username);
+        //
+        //                         return socketList
+        //                 }
+        //             }
+        //
+        //             console.log(m())
+        //
+        //             // const id = y.find(idSocket);
+        //             // const mess = y.find(messSocket)
+        //             // const name = y.find(nameSocket)
+        //
+        //             message.append("<div class='section_reply_conversation'>"
+        //                 + "<section class='conv_single_user' id='conv_single_user'></section>" +
+        //                 "</div>" + "<div class='reply_message'>" +
+        //                 " <section class='reply' id='reply'>"+  m()+
+        //                 "<input id='write_response' type='text' placeholder='your username' class='write_response'>" +
+        //                 " <input id='reply_to' type='button' placeholder='send' class='reply_to'>" +
+        //                 "</section>" + "</div>")
+        //             //
+        //         }
+        //         listSocket()
+        //         // alert( "Handler for .click() called." );
+        //     })
+        // });
