@@ -52,7 +52,6 @@ section
     #change_username
         label(for='username')
         input#username(type='text' placeholder='your username')
-        //input#send_username(type='button' value='add username')
 section#chat_room
 section
     .mess
@@ -62,25 +61,54 @@ script(src='http://code.jquery.com/jquery-1.10.1.min.js')
 script(src='/socket.io/socket.io.js')
 script.
     $(function () {
+
         let socket = io.connect('http://localhost:3000/');
         let username = $("#username");
         let message = $("#message");
         let send_message = $("#send_message");
         let chat_room = $("#chat_room");
 
+        let content = []
+
         //sending event message for server
         send_message.click(function () {
-            socket.emit('new_message', {message: message.val(), username: username.val()})
+
+            let user_msg = {
+                socket: socket.id,
+                msg: message.val(),
+                user: username.val()
+            }
+            content.push(user_msg)
+            console.log(content)
+            socket.emit('new_message', content)
+            // socket.emit('new_message', {message: message.val(), username: username.val()})
         })
 
         // receive the event from the server
+        // supprimer celui la si je veut pas que ça l'envoie a tout le monde.
         socket.on('new_message', function (data) {
-            chat_room.append("<div><p><strong>" + data.username + "</strong>" + " : " + "<strong>" + data.message + "</strong></p></div>")
+            for (let i = 0; i < data.length; i++) {
+
+                let theSocket_MESSAGE = ""
+                let theSocket_ID = ""
+                let theSocket_USERNAME = ""
+
+                theSocket_MESSAGE += data[i].msg
+                theSocket_ID += data[i].socket
+                theSocket_USERNAME += data[i].user
+
+                chat_room.append("<div><p><strong>" + theSocket_USERNAME + "</strong>" + " : " + "<strong>" + theSocket_MESSAGE + "</strong></p></div>")
+
+            }
+
+            // chat_room.append("<div><p><strong>" + data.username + "</strong>" + " : " + "<strong>" + data.message + "</strong></p></div>")
+
         })
 
-        //receptionne et affiche le message
-        // socket.on('private_message',function (data) {
-        //     chat_room.innerHTML += '<p><strong>' + data.message + '</strong></p>'
-        // })
-
+        // receive the event from server private message
+        socket.on('private_message',function (data) {
+            console.log(data.message)
+            console.log(data.username)
+            chat_room.append("<div><p><strong>" + data.username + "</strong>" + " : " + "<strong>" + data.message + "</strong></p></div>")
+        })
     });

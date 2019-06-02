@@ -14,158 +14,97 @@ html
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js")
     script(src="/socket.io/socket.io.js")
     script.
-        // onclick sur un lien de la socket
-        // lors du onclick je fais en sorte que cela m'ouvre une div en js surement un append() ou appear()
-        // il faut que cela ouvre une div qui contiendrais un emplacement pour y répondre
-        // ouvrir une session socket
-        // l'username global de la socket doit etre administrateur
-        // recuperer le message et l'username de la socket (same que client)
-        // envoyé un message private via io.to('') ou encore socket.broadcast.to('ID')
 
-        // faire une vérification avant de push dans le tableau si le nom existe deja alors error.
-        // rectification cela sert a rien puisque c'est la socket que l'on vérifie ainsi
-        // vu qu'il ne peut pas y avoir deux fois le meme socket.id alors c'est bon.
-        //on click de la div pour append une section reply je dois lui passer l'id de
-        // la socket de facon a faire une fonction  onclick de envoyer message a la socket en question
-        // faire un append et afficher a ce moment les div / input / button.
-        // puis faire un if si l'user n'a pas ecrit le bouton est disabled.
+        // 1- faire en sorte que quand la socket envoie un second message alors
+        // il est directement ajouté dans le fil des message coté admin.
 
+        // 2- géré le onClick admin
 
-        /*function getSocketMessage () {
+        // 3- pouvoir envoyé un message uniquement a l'administrateur
 
-            let conversations = document.getElementById('conversations');
-            let x = !{data}
+        // 4- puis faire un if si l'user n'a pas ecrit le bouton est disabled.
 
-            let listSocket = function () {
-                for (let i = 0; i < x.length; i++) {
+        // 5- front-end correct
+
+        let socket = io.connect('http://localhost:3000/');
+        socket.emit('admin');
+
+        socket.on('administrator',(data) => {
+            console.log(data.socket)
+            let admin_socket = data.socket
+            socket.emit('data_admin', {socket: admin_socket})
+
+        })
+        socket.on('new_message', function (data) {
+
+                // parse les message de la socket
+                for (let i = 0; i < data.length; i++) {
+                    let conversations = $("#conversations");
+                    let username = "Administrator"
+                    let messagess = $("#section_reply")
+
+                    console.log(data.length)
 
                     let theSocket_MESSAGE = ""
                     let theSocket_ID = ""
                     let theSocket_USERNAME = ""
 
-                    theSocket_MESSAGE += x[i].message
-                    theSocket_ID += x[i].theSocket
-                    theSocket_USERNAME += x[i].username
+                    theSocket_MESSAGE += data[i].msg
+                    theSocket_ID += data[i].socket
+                    theSocket_USERNAME += data[i].user
 
-                    let p = document.createElement("<div class= conversation>" + "<p class='conversation_id'> ➡️  "
-                        + 'ID' + ':  ' + theSocket_ID + "</p>" + "<p class='conversation_username'>" + '   ' +
-                        'Username' + ':  ' + theSocket_USERNAME + "</p>" + "<p class='conversation_message' >" + '   ' +
-                        'Message' + ':  ' + theSocket_MESSAGE +
-                        "</p>" + "</div>");
+                    // verification si c'est le premier message envoyé par l'user
+                    if(data.length === 1){
+                        console.log("1 seul message j'affiche alors la div de présentation")
+                        conversations.append("<div class= conversation>" + "<p id='conversation_id' class='conversation_id' data-socket=" + theSocket_ID + "> ➡️  "
+                            + 'ID' + ':  ' + theSocket_ID + "</p>" + "<p id='conversation_username' class='conversation_username'>" + '   ' +
+                            'Username' + ':  ' + theSocket_USERNAME + "</p>" + "<p id='conversation_message' class='conversation_message' >" + '   ' +
+                            'Message' + ':  ' + theSocket_MESSAGE +
+                            "</p>" + " <button id='open_c' data-socket =" + theSocket_ID + " data-message =" + theSocket_MESSAGE + " >open</button> " + "</div>")
 
-                    document.body.appendChild(p)
+                    }
+                    else{
+                        console.log("+ que 1 message alors j'envoie ce dernier dans le fil de discussion")
+                    }
 
-                    console.log(x[i].message + ' ' + x[i].theSocket + ' ' + x[i].username);
+                    $("#open_c").click(function () {
+
+                        let p_discussion = document.getElementById('conversation_id');
+                        let element_p_socket = p_discussion.getAttribute("data-socket");
+
+                        if (theSocket_ID === element_p_socket) {
+                            console.log('if discuss')
+                        } else {
+                            console.log('else discuss')
+                        }
+
+                        let btn_open = document.getElementById('open_c');
+                        let elementSocket = btn_open.getAttribute("data-socket");
+                        let elementMessage = btn_open.getAttribute("data-message");
+
+                        messagess.append("<div class='section_reply_conversation'>"
+                            + "<section class='conv_single_user' id='conv_single_user'></section>" +
+                            "</div>" + "<div id='reply_message' class='reply_message'>" +
+                            "<p> message : " + elementMessage + "</p>" +
+                            " <section class='reply' id='reply'>" +
+                            "<input id='write_answer' type='text' placeholder='your answer' class='write_response'>" +
+                            " <button id='reply_to' type='button' class='reply_to'>send</button>" +
+                            "</section>" + "</div>")
+
+
+                        const conv_msg_reply = $("#reply_message")
+                        conv_msg_reply.append("<p>message : " + theSocket_MESSAGE + "</p>")
+
+                        $("#reply_to").click(function () {
+                            let input_answer = $("#write_answer")
+                            socket.emit('new_answer', {
+                                id: elementSocket,
+                                message: input_answer.val(),
+                                username: username
+                            })
+                        })
+                    })
+                    //console.log(data[i].msg + ' ' + data[i].socket + ' ' + data[i].user);
                 }
             }
-
-            listSocket();
-
-            console.log(x);
-
-        }
-        getSocketMessage()*/
-        // ouvrir une session socket des l'ouverture de la page
-        // passer la socket id et le message avec le user dans la div correspondant (meme steps que pour afficher de base)
-        // les afficher dans un champs correspondant a l'historique de la conv comme pour fb (suivie des message)
-        // recuperer uniquement les message de la socket id qui est passé dans la div de base
-        // quand on click sur la div seul les message de la socket en question doivent d'afficher
-        // structurer le tout en front
-        // lors du click sur le bouton send:
-        // savoir qui est l'emmeteur du message
-
-        let socket = io.connect('http://localhost:3000/');
-        let conversations = $("#conversations");
-        socket.on('new_message', function (data) {
-
-            let username = "Administrator"
-
-            conversations.append("<div class= conversation>" + "<p class='conversation_id'> ➡️  "
-                + 'ID' + ':  ' + data.socket + "</p>" + "<p id='conversation_username' class='conversation_username'>" + '   ' +
-                'Username' + ':  ' + data.username + "</p>" + "<p class='conversation_message' >" + '   ' +
-                'Message' + ':  ' + data.message +
-                "</p>" + " <button id='open_c'>open</button> " + "</div>")
-
-            $("#open_c").click(function () {
-
-                let messagess = $("#section_reply")
-                let conv_user = $("#conversation_username")
-                let c = $("#reply_message")
-                if (data.username === conv_user.val()) {
-                    c.append("<p>" + conv_user.val() + "</p>")
-                }
-                messagess.append("<div class='section_reply_conversation'>"
-                    + "<section class='conv_single_user' id='conv_single_user'></section>" +
-                    "</div>" + "<div class='reply_message'>" +
-                    " <section class='reply' id='reply'>" +
-                    "<input id='write_response' type='text' placeholder='your username' class='write_response'>" +
-                    " <input id='reply_to' type='button' placeholder='send' class='reply_to'>" +
-                    "</section>" + "</div>")
-            })
-        })
-
-        // $("#reply_to").click(function () {
-        //         socket.emit('new_reply_message', {message: message.val(), user: username})
-        //     })
-
-            // $(function getMessage() {
-            //
-            //     let message = $("#section_reply")
-            //     let y = !{data}
-        //
-        //     $("#open_c").click(function () {
-        //
-        //         let listSocket = function () {
-        //             let m = function () {
-        //                 for (let i = 0; i < y.length; i++) {
-        //
-        //                     let theSocket_MESSAGE = ""
-        //                     let theSocket_ID = ""
-        //                     let theSocket_USERNAME = ""
-        //
-        //                     theSocket_MESSAGE += y[i].message
-        //                     theSocket_ID += y[i].theSocket
-        //                     theSocket_USERNAME += y[i].username
-        //
-        //                     function idSocket() {
-        //                         return y[i].theSocket === theSocket_ID
-        //                     }
-        //
-        //                     function messSocket() {
-        //                         return y[i].message === theSocket_MESSAGE
-        //                     }
-        //
-        //                     function nameSocket() {
-        //                         return y[i].username === theSocket_USERNAME
-        //                     }
-        //
-        //                     let socketList = []
-        //                     socketList.push(theSocket_USERNAME)
-        //                     socketList.push(theSocket_ID)
-        //                     socketList.push(theSocket_MESSAGE)
-        //
-        //                     console.log(y[i].message + ' ' + y[i].theSocket + ' ' + y[i].username);
-        //
-        //                         return socketList
-        //                 }
-        //             }
-        //
-        //             console.log(m())
-        //
-        //             // const id = y.find(idSocket);
-        //             // const mess = y.find(messSocket)
-        //             // const name = y.find(nameSocket)
-        //
-        //             message.append("<div class='section_reply_conversation'>"
-        //                 + "<section class='conv_single_user' id='conv_single_user'></section>" +
-        //                 "</div>" + "<div class='reply_message'>" +
-        //                 " <section class='reply' id='reply'>"+  m()+
-        //                 "<input id='write_response' type='text' placeholder='your username' class='write_response'>" +
-        //                 " <input id='reply_to' type='button' placeholder='send' class='reply_to'>" +
-        //                 "</section>" + "</div>")
-        //             //
-        //         }
-        //         listSocket()
-        //         // alert( "Handler for .click() called." );
-        //     })
-        // });
+        )
